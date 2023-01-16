@@ -1,0 +1,19 @@
+Include :
+GLFW
+ArUco
+OpenCV
+
+Repertoires des bibliothèques :
+GLFW
+ArUco
+OpenCV
+
+Bibliothèqes :
+opengl32.lib
+glfw3.lib
+aruco3112.lib
+opencv_core412d.lib
+opencv_highgui412d.lib
+opencv_videoio412d.lib
+opencv_imgproc412d.lib
+opencv_calib3d412d.lib
