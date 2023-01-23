@@ -60,12 +60,12 @@ void ArUco::drawAxis(float axisSize) {
    glEnd( );
 }
 
-void ArUco::drawWireCube(GLdouble size) {
-    drawBox(size, GL_QUADS);
+void ArUco::drawWireCube(GLdouble size,  GLint factor) {
+    drawBox(size, GL_QUADS, factor);
 }
 
 // Fonction qui dessine un cube de différentes manières (type)
-void ArUco::drawBox(GLfloat size, GLenum type)
+void ArUco::drawBox(GLfloat size, GLenum type, GLint factor)
 {
 		static const GLfloat n[6][3] =
 		{
@@ -92,8 +92,8 @@ void ArUco::drawBox(GLfloat size, GLenum type)
 		v[4][0] = v[5][0] = v[6][0] = v[7][0] = size / 2;
 		v[0][1] = v[1][1] = v[4][1] = v[5][1] = -size / 2;
 		v[2][1] = v[3][1] = v[6][1] = v[7][1] = size / 2;
-		v[0][2] = v[3][2] = v[4][2] = v[7][2] = -size / 2;
-		v[1][2] = v[2][2] = v[5][2] = v[6][2] = size / 2;
+		v[0][2] = v[3][2] = v[4][2] = v[7][2] = -size /(2.0*factor);
+		v[1][2] = v[2][2] = v[5][2] = v[6][2] = size / (2.0 * factor);
 
 		for (i = 5; i >= 0; i--) {
 			glBegin(type);
@@ -107,15 +107,7 @@ void ArUco::drawBox(GLfloat size, GLenum type)
 }
 
 
-bool ArUco::isIn(Marker m) {
-    for (unsigned int i = 0; i < m_UndetectedMarkers.size(); i++) {
-        if (m_UndetectedMarkers[i] == m) {
-            return true;
-        }
-     
-    }
-    return false;
-}
+
 
 // GLUT functionnalities
 
@@ -146,7 +138,6 @@ void ArUco::drawScene() {
    // On definit la position ou l'on va ecrire dans l'image
    glRasterPos3f(0, m_GlWindowSize.height, -1.0f);
 
-   drawCharacter(); 
    // On "dessine" les pixels contenus dans l'image OpenCV m_ResizedImage (donc l'image de la Webcam qui nous sert de fond)
    glDrawPixels (m_GlWindowSize.width, m_GlWindowSize.height, GL_RGB, GL_UNSIGNED_BYTE, m_ResizedImage.ptr(0));
    
@@ -164,16 +155,13 @@ void ArUco::drawScene() {
    // On affiche le nombre de marqueurs (ne sert a rien)
    double modelview_matrix[16];
   
-   
    // On desactive le depth test
    glDisable(GL_DEPTH_TEST);
 
-   fightMarkers();
    // Pour chaque marqueur detecte
    for (unsigned int m = 0; m < m_Markers.size(); m++)
    {
-       if (!isIn(m_Markers[m])) {
-           // cout << m_Markers[m] << endl;
+       
       // On recupere la matrice de modelview qui correspond au marqueur [m]
            m_Markers[m].glGetModelViewMatrix(modelview_matrix);
            glMatrixMode(GL_MODELVIEW);
@@ -185,120 +173,41 @@ void ArUco::drawScene() {
            drawAxis(m_MarkerSize);
 
            // On se deplace sur Z de la moitie du marqueur pour dessiner "sur" le plan du marqueur
-            glTranslatef(0, 0, m_MarkerSize/2.);
-
+            glTranslatef(0, 0, m_MarkerSize/4.);
 
            // On sauvegarde la matrice courante
            glPushMatrix();
           
-           glColor3f(m_Markers[m].id / 200 , m_Markers[m].id / 200, m_Markers[m].id / 200);
-           //On dessine une cube en fil de fer
-           drawWireCube( m_MarkerSize);
+          
+		   glColor3f(1.0f, 0.6f, 0.0f);
+           //On dessine un cube du tronc
+           drawWireCube( m_MarkerSize /2, 2);
+		   glTranslatef(0, 0, m_MarkerSize / 4.);
+		   drawWireCube(m_MarkerSize / 2, 2 );
+           glTranslatef(0, 0, m_MarkerSize / 4.);
 
 
-           // Ajouter votre code ici !!
-
-           //int num_segments = 40;
-           //float cx = 0;
-           //float cy = 0;
-           //float r = 0.05;
-           //float theta = 3.1415926 * 2 / float(num_segments);
-           //float tangetial_factor = tanf(theta);//calculate the tangential factor 
-
-           //float radial_factor = cosf(theta);//calculate the radial factor 
-
-           //float x = r;//we start at angle = 0 
-
-           //float y = 0;
-           //glLineWidth(2);
-           //glBegin(GL_LINE_LOOP);
-           //for (int ii = 0; ii < num_segments; ii++)
-           //{
-           //    glVertex2f(x + cx, y + cy);//output vertex 
-
-           //    //calculate the tangential vector 
-           //    //remember, the radial vector is (x, y) 
-           //    //to get the tangential vector we flip those coordinates and negate one of them 
-
-           //    float tx = -y;
-           //    float ty = x;
-
-           //    //add the tangential vector 
-
-           //    x += tx * tangetial_factor;
-           //    y += ty * tangetial_factor;
-
-           //    //correct using the radial factor 
-
-           //    x *= radial_factor;
-           //    y *= radial_factor;
-           //}
-           //glEnd();
-
-
+		   glColor3f(0.0f, 0.6f, 0.0f);
+		   //On dessine les cubes de la pyramide
+		   drawWireCube(m_MarkerSize , 4);
+		   glTranslatef(0, 0, m_MarkerSize / 4.);
+		   drawWireCube(m_MarkerSize/1.5, 4);
+		   glTranslatef(0, 0, m_MarkerSize / 6.);
+		   drawWireCube(m_MarkerSize/2, 4);
+		   glTranslatef(0, 0, m_MarkerSize / 8.);
+		   drawWireCube(m_MarkerSize/4, 4);
+		   glTranslatef(0, 0, m_MarkerSize / 16.);
+		   drawWireCube(m_MarkerSize/8, 4);
+		   
            // On re=charge la matrice que l'on a sauvegarde
            glPopMatrix();
-       }
+    
 
        // Desactivation du depth test
        glDisable(GL_DEPTH_TEST);
        }
 
 }
-
-void ArUco::drawCharacter() {
-
-    for (unsigned int m = 0; m < m_Markers.size(); m++) {
-   
-        m_Markers[m].draw(m_ResizedImage);
-    }
-
-}
-
-float Distance(Marker m1, Marker m2) {
-    cv::Point2f center1(0, 0);
-    for (int i = 0; i < 4; i++) {
-        center1 += m1[i];
-    }
-    center1 *= 0.25;
-    cv::Point2f center2(0, 0);
-    for (int i = 0; i < 4; i++) {
-        center2 += m2[i];
-    }
-    center2 *= 0.25;
-
-
-    float x1 = abs(center1.x - center2.x);
-    float x2 = abs(center1.y - center2.y);
-    float distance = sqrt(x1 * x1 + x2 * x2);
-    cout << "distance entre marqueur" << m1.id << " et marqueur " << m2.id << "est de : " << distance << endl;
-    return distance ;
-
-}
-
-float thresh = 130.0f;
-void ArUco :: fightMarkers() {
-    if (m_Markers.size() != 0) {
-        for (unsigned int m = 0; m < m_Markers.size() - 1; m++) {
-            for (unsigned int n = m + 1; n < m_Markers.size(); n++) {
-                if (Distance(m_Markers[m], m_Markers[n]) < thresh) {
-                    if (m_Markers[m].id > m_Markers[n].id) {
-                         if (!isIn(m_Markers[n])) {
-                        m_UndetectedMarkers.push_back(m_Markers[n]);
-                         }
-                    }
-                    else {
-                                if (!isIn(m_Markers[m])) {
-                        m_UndetectedMarkers.push_back(m_Markers[m]);
-                             }
-                    }
-                }
-            }
-        }
-    }
-   
-}
-
 
 
 // Idle function
