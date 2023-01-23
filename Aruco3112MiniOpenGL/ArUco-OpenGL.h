@@ -67,7 +67,7 @@ public:
    // Destructor
    ~ArUco();
    
-   void	drawBox(GLfloat size, GLenum type, GLint factor);
+   void	drawBox(GLfloat size, GLenum type);
 
    // Detect marker and draw things
    void  doWork(Mat inputImg);
@@ -76,7 +76,7 @@ public:
    void  drawAxis(float axisSize);
    
    // Draw axis function
-   void  drawWireCube(GLdouble size, GLint factor);
+   void  drawWireCube(GLdouble size);
 
 
    // GLUT functionnalities
@@ -85,12 +85,14 @@ public:
    void  drawScene();
 
    // draw the detector marker
-   void drawObj();
+   void drawCharacter(); 
 
    // Idle function
    void  idle(Mat newImage);
 
-
+   //fight 
+   void fightMarkers();
+   bool isIn(Marker);
    
    // Resize function
    void  resize(GLsizei iWidth, GLsizei iHeight);
